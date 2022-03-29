@@ -1,13 +1,16 @@
 import java.io.*;
 import java.net.*;
 
-public class Split {
+public class Split extends Thread {
 	static int socketports[] = {2000, 2001, 2002};
 	static String originfile;
 	static String block[] = {"originblock0.txt","originblock1.txt","originblock2.txt"};
+	int targetnode;
 	
-	public Split() {
+	public Split(int targetnode) {
+		this.targetnode = targetnode;
 	}
+	
 	
 	private static void splitfile(String originfile) {//function to split file into block - ok
 		try {
@@ -58,7 +61,7 @@ public class Split {
 	}
 	
 	
-	public static void senddata(int targetnode) {//thread to send to Daemon - ok
+	public void run() {//thread to send to Daemon - ok
 		try {
 			Socket sc = new Socket ("localhost", socketports[targetnode]);
 			OutputStream os = sc.getOutputStream();
@@ -88,10 +91,12 @@ public class Split {
 		//split file
 		splitfile(originfile);
 
-		//send to Daemon		
+		//send to Daemon on 3 threads		
 		for(int i = 0; i<3; i++)
 			{
-				senddata(i);
+				Split thread = new Split(i);
+				thread.start();
+				
 			}
 
 
