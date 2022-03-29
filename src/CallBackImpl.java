@@ -1,5 +1,3 @@
-
-
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -11,10 +9,15 @@ public class CallBackImpl extends UnicastRemoteObject implements CallBack {
 	}
 
 	public synchronized void completed() throws RemoteException {
-		notify();
+		System.out.println("Notify completed");
+		notify();		
 	}
 	
 	public synchronized void waitforall() throws InterruptedException {
-		for (int i=0 ; i<nbnode; i++) wait();
+		for (int i=0 ; i<nbnode; i++)
+		{
+			wait();
+		}
+			
 			}
 }

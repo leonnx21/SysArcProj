@@ -12,6 +12,7 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 	static String Nodedata[] = {"Node0.txt", "Node1.txt", "Node2.txt"};
 	static String Noderesult[] = {"NodeResult0.txt", "NodeResult1.txt", "NodeResult2.txt"};
 	static int node;
+
 	
 	public DaemonImpl() throws RemoteException
 	{
@@ -20,9 +21,9 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 	public void call(MapReduce m, String blockin, String blockout, CallBack cb) 
 			throws RemoteException{
 		m.executeMap(blockin, blockout);
-		System.out.println("Executed");
-		//cb.completed();
-		//senddata();
+		System.out.println("Map Executed");
+		senddata();
+		cb.completed();
 	}
 	
 	private static void receivedata(Socket s) //function to receive data block - ok
@@ -62,7 +63,7 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 		} catch (Exception e) {e.printStackTrace();}
 	}
 	
-	/* not ok yet
+	
 	public static void senddata() {//send to Launch 
 		try {
 			Socket sc = new Socket ("localhost", originnodesocket[node]);
@@ -70,7 +71,7 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 			
 			byte buff[] = new byte[1024];
 			FileInputStream fis = new FileInputStream(Noderesult[node]);
-			
+	
 			while(true)
 			{
 				int nb = fis.read(buff);
@@ -81,11 +82,11 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 				os.write(buff);
 			}
 			
+			
 		} catch (Exception e) {e.printStackTrace();}
 	
 	}
-	*/
-	
+
 	
 	public static void main(String args[]) {
 		node = Integer.parseInt(args[0]);

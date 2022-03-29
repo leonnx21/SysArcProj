@@ -1,4 +1,3 @@
-
 import java.util.Collection;
 
 public class MapReduceImpl implements MapReduce {
