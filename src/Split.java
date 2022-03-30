@@ -66,20 +66,18 @@ public class Split extends Thread {
 			Socket sc = new Socket ("localhost", socketports[targetnode]);
 			OutputStream os = sc.getOutputStream();
 			
-			byte buff[] = new byte[1024];
-			FileInputStream fis = new FileInputStream(originfile+block[targetnode]);
+			InputStream in = new BufferedInputStream(new FileInputStream(originfile+block[targetnode]));
+			byte[] buff = new byte[1024];
+	        int nb;
 			
-			while(true)
-			{
-				int nb = fis.read(buff);
-				if (nb == -1) {
-					break;
-				}
-				os.write(buff);
-			}
-			
+	        
+	        while ((nb = in.read(buff)) > 0) {
+	            os.write(buff, 0, nb);
+	        }
+	        
 			sc.close();
-			fis.close();
+			in.close();
+			//fis.close();
 	
 			System.out.println("Data sent to node "+targetnode);
 			

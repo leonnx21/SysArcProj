@@ -67,21 +67,19 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 		try {
 			Socket sc = new Socket ("localhost", originnodesocket[node]);
 			OutputStream os = sc.getOutputStream();
-		
-			byte buff[] = new byte[1024];
-			FileInputStream fis = new FileInputStream(Noderesult[node]);
-			
-			while(true)
-			{
-				int nb = fis.read(buff);
-				if (nb == -1) {
-					break;
-				}
-				os.write(buff);
-			}
+	
+			InputStream in = new BufferedInputStream(new FileInputStream(Noderesult[node]));
+			byte[] buff = new byte[1024];
+	        int nb;
+	        
+	        
+	        while ((nb = in.read(buff)) > 0) {
+	            os.write(buff, 0, nb);
+	        }
 			
 			sc.close();
-			fis.close();
+			in.close();
+			//fis.close();
 			
 			System.out.println("result sent from node "+node);
 			
