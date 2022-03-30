@@ -34,15 +34,21 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 			oldfile.delete();
 				
 			//get new file
-			InputStream is = s.getInputStream();
-			BufferedReader bis = new BufferedReader(new InputStreamReader(is));					
-			String line;
+			InputStream is = s.getInputStream();	
+			BufferedInputStream bis = new BufferedInputStream(is);
 			
-			while ((line = bis.readLine()) != null) {		
-				writetofile(line);
-				}
-	
-			s.close();
+			FileOutputStream fos = new FileOutputStream(Nodedata[node]);
+			OutputStream os = new BufferedOutputStream(fos);
+		
+		    byte[] buffer = new byte[1024];
+		    int lengthRead;
+		        
+		    while ((lengthRead = bis.read(buffer)) > 0) {
+		            os.write(buffer, 0, lengthRead);
+		            os.flush();
+		        }
+			os.close();
+			
 			System.out.println("File received");
 
 
@@ -50,36 +56,26 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 			e.printStackTrace();
 		}
 	}
-	
-	
-	private static void writetofile(String line)
-	{
-		try {
-			FileWriter fw = new FileWriter(Nodedata[node], true); 
-	        BufferedWriter bw = new BufferedWriter(fw);
-	        bw.write(line+"\n");
-	        bw.close();
-		} catch (Exception e) {e.printStackTrace();}
-	}
-	
+
 	
 	public static void senddata() {//send to Launch 
 		try {
 			Socket sc = new Socket ("localhost", originnodesocket[node]);
+			
 			OutputStream os = sc.getOutputStream();
 	
-			InputStream in = new BufferedInputStream(new FileInputStream(Noderesult[node]));
+			FileInputStream fis = new FileInputStream(Noderesult[node]);
+			InputStream is = new BufferedInputStream(fis);
+			
 			byte[] buff = new byte[1024];
 	        int nb;
 	        
-	        
-	        while ((nb = in.read(buff)) > 0) {
+	        while ((nb = is.read(buff)) > 0) {
 	            os.write(buff, 0, nb);
 	        }
 			
 			sc.close();
-			in.close();
-			//fis.close();
+			is.close();
 			
 			System.out.println("result sent from node "+node);
 			

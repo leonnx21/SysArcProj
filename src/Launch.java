@@ -13,7 +13,7 @@ public class Launch extends Thread {
 	static String Noderesultatmaster[] = {"MNodeResult0.txt", "MNodeResult1.txt", "MNodeResult2.txt"};
 	int node;
 	ServerSocket ss;
-	static CallBack cb;
+	//static CallBack cb;
 	static MapReduce m;
 	
 	public Launch(int node)
@@ -30,7 +30,8 @@ public class Launch extends Thread {
 	{
 		try {
 			Daemon d = (Daemon)Naming.lookup("//localhost:"+rmiports[node]+"/Daemon");	//look up for functions on daemon
-		
+			CallBack cb = new CallBackImpl(node);
+			
 			d.call(m ,Nodedata[node], Noderesult[node], cb); //invoke call function on Daemon, passed Map Reduced  as Serializable object and call back as remote  object
 
 			//get back result file
@@ -42,13 +43,20 @@ public class Launch extends Thread {
 				//get new file
 				Socket s = ss.accept();
 				InputStream is = s.getInputStream();
-				BufferedReader bis = new BufferedReader(new InputStreamReader(is));					
-				String line;
+				BufferedInputStream bis = new BufferedInputStream(is);
 				
-				while ((line = bis.readLine()) != null) {
-					 writetofile(line, node);
-					}
-				
+				FileOutputStream fos = new FileOutputStream(Noderesultatmaster[node]);
+				OutputStream os = new BufferedOutputStream(fos);
+			
+			    byte[] buffer = new byte[1024];
+			    int lengthRead;
+			        
+			    while ((lengthRead = bis.read(buffer)) > 0) {
+			            os.write(buffer, 0, lengthRead);
+			            os.flush();
+			        }
+			    
+				os.close();	
 				ss.close();	
 				System.out.println("result received from node "+node);
 								
@@ -78,7 +86,7 @@ public class Launch extends Thread {
 
 		try {
 			m = new MapReduceImpl();//initialize Map Reduce and Callback on Launch
-			cb = new CallBackImpl(2);
+			//cb = new CallBackImpl(3);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -97,14 +105,12 @@ public class Launch extends Thread {
 
 		
 		//after wait
-		//MapReduce m = new MapReduceImpl();
 		Collection<String> c = new ArrayList<String>();
 		
 		for (int i=0; i<3; i++)
 		{
 			c.add(Noderesultatmaster[i]);
 		}
-		
 		
 		m.executeReduce(c,"FinalResult.txt"); //execute 
 		System.out.println("Map Reduce completed: FinalResult.txt");
