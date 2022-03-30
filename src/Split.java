@@ -73,11 +73,15 @@ public class Split extends Thread {
 			{
 				int nb = fis.read(buff);
 				if (nb == -1) {
-					sc.close();
-					return;
+					break;
 				}
 				os.write(buff);
 			}
+			
+			sc.close();
+			fis.close();
+	
+			System.out.println("Data sent to node "+targetnode);
 			
 		} catch (Exception e) {e.printStackTrace();}
 	

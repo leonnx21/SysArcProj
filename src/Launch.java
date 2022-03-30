@@ -14,13 +14,14 @@ public class Launch extends Thread {
 	int node;
 	ServerSocket ss;
 	static CallBack cb;
+	static MapReduce m;
 	
 	public Launch(int node)
 	{		
 		try {
 			this.node = node;
 			this.ss = new ServerSocket(originnodesocket[node]);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -29,9 +30,7 @@ public class Launch extends Thread {
 	{
 		try {
 			Daemon d = (Daemon)Naming.lookup("//localhost:"+rmiports[node]+"/Daemon");	//look up for functions on daemon
-			
-			MapReduce m = new MapReduceImpl();//initialize MapReduce to transfer to Daemon
-			
+		
 			d.call(m ,Nodedata[node], Noderesult[node], cb); //invoke call function on Daemon, passed Map Reduced  as Serializable object and call back as remote  object
 
 			//get back result file
@@ -44,19 +43,14 @@ public class Launch extends Thread {
 				Socket s = ss.accept();
 				InputStream is = s.getInputStream();
 				BufferedReader bis = new BufferedReader(new InputStreamReader(is));					
+				String line;
 				
-				boolean accept = true;
-				
-				while (accept == true) {
-					String line = bis.readLine();
-					if (line == null){
-						ss.close();
-						System.out.println("result received from node "+node);
-						accept = false;
-					}				
-					else {writetofile(line+"\n", node);}
+				while ((line = bis.readLine()) != null) {
+					 writetofile(line, node);
 					}
 				
+				ss.close();	
+				System.out.println("result received from node "+node);
 								
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -73,7 +67,7 @@ public class Launch extends Thread {
 		try {
 			FileWriter fw = new FileWriter(Noderesultatmaster[node], true); 
 	        BufferedWriter bw = new BufferedWriter(fw);
-	        bw.write(line);
+	        bw.write(line+"\n");
 	        bw.close();
 		} catch (Exception e) {e.printStackTrace();}
 	}
@@ -83,8 +77,9 @@ public class Launch extends Thread {
 	{			
 
 		try {
-			cb = new CallBackImpl(3);
-		} catch (RemoteException e) {
+			m = new MapReduceImpl();//initialize Map Reduce and Callback on Launch
+			cb = new CallBackImpl(2);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -92,6 +87,7 @@ public class Launch extends Thread {
 		{
 			Launch Thread= new Launch(i);
 			Thread.start();
+			
 			try {
 				Thread.join();
 			} catch (InterruptedException e) {
@@ -101,17 +97,16 @@ public class Launch extends Thread {
 
 		
 		//after wait
-		MapReduce m = new MapReduceImpl();
-		Collection<String> c = new ArrayList();
+		//MapReduce m = new MapReduceImpl();
+		Collection<String> c = new ArrayList<String>();
 		
 		for (int i=0; i<3; i++)
 		{
-			c.add(Noderesult[i]);
+			c.add(Noderesultatmaster[i]);
 		}
-	
-		m.executeReduce(c,"FinalResult.txt"); //execute 
-		System.out.println("Map Reduce completed");
 		
-		return;
-}
+		
+		m.executeReduce(c,"FinalResult.txt"); //execute 
+		System.out.println("Map Reduce completed: FinalResult.txt");
+	}
 }

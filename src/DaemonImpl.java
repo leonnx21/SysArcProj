@@ -36,16 +36,15 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 			//get new file
 			InputStream is = s.getInputStream();
 			BufferedReader bis = new BufferedReader(new InputStreamReader(is));					
-						
-			while (true) {
-				String line = bis.readLine();
-				if (line == null){
-					s.close();
-					System.out.println("File received");
-					return;
-				}				
-				else {writetofile(line+"\n");}
+			String line;
+			
+			while ((line = bis.readLine()) != null) {		
+				writetofile(line);
 				}
+	
+			s.close();
+			System.out.println("File received");
+
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -58,7 +57,7 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 		try {
 			FileWriter fw = new FileWriter(Nodedata[node], true); 
 	        BufferedWriter bw = new BufferedWriter(fw);
-	        bw.write(line);
+	        bw.write(line+"\n");
 	        bw.close();
 		} catch (Exception e) {e.printStackTrace();}
 	}
@@ -68,20 +67,23 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 		try {
 			Socket sc = new Socket ("localhost", originnodesocket[node]);
 			OutputStream os = sc.getOutputStream();
-			
+		
 			byte buff[] = new byte[1024];
 			FileInputStream fis = new FileInputStream(Noderesult[node]);
-	
+			
 			while(true)
 			{
 				int nb = fis.read(buff);
 				if (nb == -1) {
-					sc.close();
-					return;
+					break;
 				}
 				os.write(buff);
 			}
 			
+			sc.close();
+			fis.close();
+			
+			System.out.println("result sent from node "+node);
 			
 		} catch (Exception e) {e.printStackTrace();}
 	
