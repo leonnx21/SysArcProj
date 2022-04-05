@@ -6,7 +6,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class DaemonImpl extends UnicastRemoteObject implements Daemon{
-	static int originnodesocket[] = {1000, 1001, 1002};
+	static int launchsocket = 1000;
 	static int socketports[] = {2000, 2001, 2002};
 	static int rmiports[] = {3000, 3001, 3002};
 	static String Nodedata[] = {"Node0.txt", "Node1.txt", "Node2.txt"};
@@ -22,7 +22,7 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 			throws RemoteException{
 		m.executeMap(blockin, blockout);
 		System.out.println("Map Executed");
-		senddata();
+		sendresult();
 		cb.completed();
 	}
 	
@@ -58,9 +58,9 @@ public class DaemonImpl extends UnicastRemoteObject implements Daemon{
 	}
 
 	
-	public static void senddata() {//send to Launch 
+	public static void sendresult() {//send to Launch 
 		try {
-			Socket sc = new Socket ("localhost", originnodesocket[node]);
+			Socket sc = new Socket ("localhost", launchsocket);
 			
 			OutputStream os = sc.getOutputStream();
 	

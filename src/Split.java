@@ -26,37 +26,35 @@ public class Split extends Thread {
 			String line;
 			int linecount = 0 ;
 
+			FileWriter fw0 = new FileWriter(originfile+block[0], true); 
+	        BufferedWriter bw0 = new BufferedWriter(fw0);
+	        FileWriter fw1 = new FileWriter(originfile+block[1], true); 
+	        BufferedWriter bw1 = new BufferedWriter(fw1);
+			FileWriter fw2 = new FileWriter(originfile+block[2], true); 
+	        BufferedWriter bw2 = new BufferedWriter(fw2);
+			
 			//split to file line by line
 			while ((line = buff.readLine()) != null)
 			{
 				if((linecount % 3)==0)
 				{
-					writetofile(originfile+block[2], line);
+			        bw0.write(line+"\n");
 				}
 				else if ((linecount % 2)==0)
-				{
-					writetofile(originfile+block[1], line);
+				{	
+			        bw1.write(line+"\n");
 				}
 				else
 				{
-					writetofile(originfile+block[0], line);
+			        bw2.write(line+"\n");
 				}
 				linecount++;
 			}
-			
 			buff.close();
+			bw0.close();
+			bw1.close();
+			bw2.close();
 	
-		} catch (Exception e) {e.printStackTrace();}
-	}
-	
-	
-	private static void writetofile(String filename, String line) //function to write to file - ok
-	{
-		try {
-			FileWriter fw = new FileWriter(filename, true); 
-	        BufferedWriter bw = new BufferedWriter(fw);
-	        bw.write(line+"\n");
-	        bw.close();
 		} catch (Exception e) {e.printStackTrace();}
 	}
 	
@@ -85,7 +83,7 @@ public class Split extends Thread {
 		} catch (Exception e) {e.printStackTrace();}
 	
 	}
-	
+
 
 	public static void main(String[] args)
 	{
@@ -99,7 +97,6 @@ public class Split extends Thread {
 			{
 				Split thread = new Split(i);
 				thread.start();
-				
 			}
 
 

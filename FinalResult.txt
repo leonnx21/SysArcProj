@@ -1,0 +1,4 @@
+toto - 9
+tutu - 6
+tata - 3
+titi - 6

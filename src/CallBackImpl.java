@@ -9,7 +9,7 @@ public class CallBackImpl extends UnicastRemoteObject implements CallBack {
 	}
 
 	public synchronized void completed() throws RemoteException {
-		System.out.println("Notify completed");
+		System.out.println("Notify completion");
 		notify();		
 	}
 	
